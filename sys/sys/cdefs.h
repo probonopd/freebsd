@@ -79,12 +79,8 @@
  * having a compiler-agnostic source tree.
  */
 
-#if __GNUC__ >= 3
 #define	__GNUCLIKE_ASM 3
 #define	__GNUCLIKE_MATH_BUILTIN_CONSTANTS
-#else
-#define	__GNUCLIKE_ASM 2
-#endif
 #define	__GNUCLIKE___TYPEOF 1
 #define	__GNUCLIKE___OFFSETOF 1
 #define	__GNUCLIKE___SECTION 1
@@ -93,11 +89,9 @@
 
 #define	__GNUCLIKE_BUILTIN_CONSTANT_P 1
 
-#if (__GNUC_MINOR__ > 95 || __GNUC__ >= 3)
 #define	__GNUCLIKE_BUILTIN_VARARGS 1
 #define	__GNUCLIKE_BUILTIN_STDARG 1
 #define	__GNUCLIKE_BUILTIN_VAALIST 1
-#endif
 
 #define	__GNUC_VA_LIST_COMPATIBILITY 1
 
@@ -195,18 +189,6 @@
  * a feature that we cannot live without.
  */
 #define	__weak_symbol	__attribute__((__weak__))
-#if !__GNUC_PREREQ__(2, 5)
-#define	__dead2
-#define	__pure2
-#define	__unused
-#endif
-#if __GNUC__ == 2 && __GNUC_MINOR__ >= 5 && __GNUC_MINOR__ < 7
-#define	__dead2		__attribute__((__noreturn__))
-#define	__pure2		__attribute__((__const__))
-#define	__unused
-/* XXX Find out what to do for __packed, __aligned and __section */
-#endif
-#if __GNUC_PREREQ__(2, 7)
 #define	__dead2		__attribute__((__noreturn__))
 #define	__pure2		__attribute__((__const__))
 #define	__unused	__attribute__((__unused__))
@@ -214,7 +196,6 @@
 #define	__packed	__attribute__((__packed__))
 #define	__aligned(x)	__attribute__((__aligned__(x)))
 #define	__section(x)	__attribute__((__section__(x)))
-#endif
 #if __GNUC_PREREQ__(4, 3) || __has_attribute(__alloc_size__)
 #define	__alloc_size(x)	__attribute__((__alloc_size__(x)))
 #define	__alloc_size2(n, x)	__attribute__((__alloc_size__(n, x)))
@@ -226,10 +207,6 @@
 #define	__alloc_align(x)	__attribute__((__alloc_align__(x)))
 #else
 #define	__alloc_align(x)
-#endif
-
-#if !__GNUC_PREREQ__(2, 95)
-#define	__alignof(x)	__offsetof(struct { char __a; x __b; }, __b)
 #endif
 
 /*
@@ -314,7 +291,7 @@
     __has_extension(c_generic_selections)
 #define	__generic(expr, t, yes, no)					\
 	_Generic(expr, t: yes, default: no)
-#elif __GNUC_PREREQ__(3, 1) && !defined(__cplusplus)
+#elif !defined(__cplusplus)
 #define	__generic(expr, t, yes, no)					\
 	__builtin_choose_expr(						\
 	    __builtin_types_compatible_p(__typeof(expr), t), yes, no)
@@ -335,39 +312,17 @@
 #define __min_size(x)	(x)
 #endif
 
-#if __GNUC_PREREQ__(2, 96)
 #define	__malloc_like	__attribute__((__malloc__))
 #define	__pure		__attribute__((__pure__))
-#else
-#define	__malloc_like
-#define	__pure
-#endif
 
-#if __GNUC_PREREQ__(3, 1)
 #define	__always_inline	__attribute__((__always_inline__))
-#else
-#define	__always_inline
-#endif
 
-#if __GNUC_PREREQ__(3, 1)
 #define	__noinline	__attribute__ ((__noinline__))
-#else
-#define	__noinline
-#endif
 
-#if __GNUC_PREREQ__(3, 4)
 #define	__fastcall	__attribute__((__fastcall__))
 #define	__result_use_check	__attribute__((__warn_unused_result__))
-#else
-#define	__fastcall
-#define	__result_use_check
-#endif
 
-#if __GNUC_PREREQ__(4, 1)
 #define	__returns_twice	__attribute__((__returns_twice__))
-#else
-#define	__returns_twice
-#endif
 
 #if __GNUC_PREREQ__(4, 6) || __has_builtin(__builtin_unreachable)
 #define	__unreachable()	__builtin_unreachable()
@@ -375,12 +330,7 @@
 #define	__unreachable()	((void)0)
 #endif
 
-/* XXX: should use `#if __STDC_VERSION__ < 199901'. */
-#if !__GNUC_PREREQ__(2, 7)
-#define	__func__	NULL
-#endif
-
-#if __GNUC__ >= 2 && !defined(__STRICT_ANSI__) || __STDC_VERSION__ >= 199901
+#if !defined(__STRICT_ANSI__) || __STDC_VERSION__ >= 199901
 #define	__LONG_LONG_SUPPORTED
 #endif
 
@@ -395,18 +345,10 @@
 #endif
 #endif
 
-/*
- * GCC 2.95 provides `__restrict' as an extension to C90 to support the
- * C99-specific `restrict' type qualifier.  We happen to use `__restrict' as
- * a way to define the `restrict' type qualifier without disturbing older
- * software that is unaware of C99 keywords.
- */
-#if !(__GNUC__ == 2 && __GNUC_MINOR__ == 95)
 #if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901
 #define	__restrict
 #else
 #define	__restrict	restrict
-#endif
 #endif
 
 /*
@@ -437,41 +379,18 @@
  *	  basic block reordering that this affects can often generate
  *	  larger code.
  */
-#if __GNUC_PREREQ__(2, 96)
 #define	__predict_true(exp)     __builtin_expect((exp), 1)
 #define	__predict_false(exp)    __builtin_expect((exp), 0)
-#else
-#define	__predict_true(exp)     (exp)
-#define	__predict_false(exp)    (exp)
-#endif
 
-#if __GNUC_PREREQ__(4, 0)
 #define	__null_sentinel	__attribute__((__sentinel__))
 #define	__exported	__attribute__((__visibility__("default")))
 #define	__hidden	__attribute__((__visibility__("hidden")))
-#else
-#define	__null_sentinel
-#define	__exported
-#define	__hidden
-#endif
 
 /*
  * We define this here since <stddef.h>, <sys/queue.h>, and <sys/types.h>
  * require it.
  */
-#if __GNUC_PREREQ__(4, 1)
 #define	__offsetof(type, field)	 __builtin_offsetof(type, field)
-#else
-#ifndef __cplusplus
-#define	__offsetof(type, field) \
-	((__size_t)(__uintptr_t)((const volatile void *)&((type *)0)->field))
-#else
-#define	__offsetof(type, field)					\
-  (__offsetof__ (reinterpret_cast <__size_t>			\
-                 (&reinterpret_cast <const volatile char &>	\
-                  (static_cast<type *> (0)->field))))
-#endif
-#endif
 #define	__rangeof(type, start, end) \
 	(__offsetof(type, end) - __offsetof(type, start))
 
@@ -481,15 +400,10 @@
  * assign pointer x to a local variable, to check that its type is
  * compatible with member m.
  */
-#if __GNUC_PREREQ__(3, 1)
 #define	__containerof(x, s, m) ({					\
 	const volatile __typeof(((s *)0)->m) *__x = (x);		\
 	__DEQUALIFY(s *, (const volatile char *)__x - __offsetof(s, m));\
 })
-#else
-#define	__containerof(x, s, m)						\
-	__DEQUALIFY(s *, (const volatile char *)(x) - __offsetof(s, m))
-#endif
 
 /*
  * Compiler-dependent macros to declare that functions take printf-like
@@ -497,13 +411,6 @@
  * that are known to support the features properly (old versions of gcc-2
  * didn't permit keeping the keywords out of the application namespace).
  */
-#if !__GNUC_PREREQ__(2, 7)
-#define	__printflike(fmtarg, firstvararg)
-#define	__scanflike(fmtarg, firstvararg)
-#define	__format_arg(fmtarg)
-#define	__strfmonlike(fmtarg, firstvararg)
-#define	__strftimelike(fmtarg, firstvararg)
-#else
 #define	__printflike(fmtarg, firstvararg) \
 	    __attribute__((__format__ (__printf__, fmtarg, firstvararg)))
 #define	__scanflike(fmtarg, firstvararg) \
@@ -513,7 +420,6 @@
 	    __attribute__((__format__ (__strfmon__, fmtarg, firstvararg)))
 #define	__strftimelike(fmtarg, firstvararg) \
 	    __attribute__((__format__ (__strftime__, fmtarg, firstvararg)))
-#endif
 
 /* Compiler-dependent macros that rely on FreeBSD-specific extensions. */
 #define	__printf0like(fmtarg, firstvararg) \
