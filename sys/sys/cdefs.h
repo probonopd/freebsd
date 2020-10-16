@@ -42,6 +42,10 @@
 #error "_KERNEL and _STANDALONE are mutually exclusive"
 #endif
 
+#if !defined(__GNUC__)
+#error "Requires a compiler that supports gcc defines"
+#endif
+
 /*
  * Testing against Clang-specific extensions.
  */
@@ -75,8 +79,6 @@
  * having a compiler-agnostic source tree.
  */
 
-#if defined(__GNUC__)
-
 #if __GNUC__ >= 3
 #define	__GNUCLIKE_ASM 3
 #define	__GNUCLIKE_MATH_BUILTIN_CONSTANTS
@@ -97,23 +99,18 @@
 #define	__GNUCLIKE_BUILTIN_VAALIST 1
 #endif
 
-#if defined(__GNUC__)
 #define	__GNUC_VA_LIST_COMPATIBILITY 1
-#endif
 
 /*
  * Compiler memory barriers, specific to gcc and clang.
  */
-#if defined(__GNUC__)
 #define	__compiler_membar()	__asm __volatile(" " : : : "memory")
-#endif
 
 #define	__GNUCLIKE_BUILTIN_NEXT_ARG 1
 #define	__GNUCLIKE_MATH_BUILTIN_RELOPS
 
 #define	__GNUCLIKE_BUILTIN_MEMCPY 1
 
-/* XXX: if __GNUC__ >= 2: not tested everywhere originally, where replaced */
 #define	__CC_SUPPORTS_INLINE 1
 #define	__CC_SUPPORTS___INLINE 1
 #define	__CC_SUPPORTS___INLINE__ 1
@@ -125,17 +122,11 @@
 
 #define	__CC_SUPPORTS_DYNAMIC_ARRAY_INIT 1
 
-#endif /* __GNUC__ */
-
 /*
  * Macro to test if we're using a specific version of gcc or later.
  */
-#if defined(__GNUC__)
 #define	__GNUC_PREREQ__(ma, mi)	\
 	(__GNUC__ > (ma) || __GNUC__ == (ma) && __GNUC_MINOR__ >= (mi))
-#else
-#define	__GNUC_PREREQ__(ma, mi)	0
-#endif
 
 /*
  * The __CONCAT macro is used to concatenate parts of symbol names, e.g.
@@ -389,7 +380,7 @@
 #define	__func__	NULL
 #endif
 
-#if (defined(__GNUC__) && __GNUC__ >= 2) && !defined(__STRICT_ANSI__) || __STDC_VERSION__ >= 199901
+#if __GNUC__ >= 2 && !defined(__STRICT_ANSI__) || __STDC_VERSION__ >= 199901
 #define	__LONG_LONG_SUPPORTED
 #endif
 
@@ -525,15 +516,9 @@
 #endif
 
 /* Compiler-dependent macros that rely on FreeBSD-specific extensions. */
-#if defined(__FreeBSD_cc_version) && __FreeBSD_cc_version >= 300001 && \
-    defined(__GNUC__)
 #define	__printf0like(fmtarg, firstvararg) \
 	    __attribute__((__format__ (__printf0__, fmtarg, firstvararg)))
-#else
-#define	__printf0like(fmtarg, firstvararg)
-#endif
 
-#if defined(__GNUC__)
 #define	__strong_reference(sym,aliassym)	\
 	extern __typeof (sym) aliassym __attribute__ ((__alias__ (#sym)))
 #ifdef __STDC__
@@ -561,22 +546,11 @@
 #define	__sym_default(impl,sym,verid)	\
 	__asm__(".symver impl, sym@@@verid")
 #endif	/* __STDC__ */
-#endif	/* __GNUC__ */
 
 #define	__GLOBL1(sym)	__asm__(".globl " #sym)
 #define	__GLOBL(sym)	__GLOBL1(sym)
 
-#if defined(__GNUC__)
 #define	__IDSTRING(name,string)	__asm__(".ident\t\"" string "\"")
-#else
-/*
- * The following definition might not work well if used in header files,
- * but it should be better than nothing.  If you want a "do nothing"
- * version, then it should generate some harmless declaration, such as:
- *    #define	__IDSTRING(name,string)	struct __hack
- */
-#define	__IDSTRING(name,string)	static const char name[] __unused = string
-#endif
 
 /*
  * Embed the rcs id of a source file in the resulting library.  Note that in
