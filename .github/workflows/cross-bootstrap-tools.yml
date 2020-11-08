@@ -18,6 +18,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: install LLVM+libarchive (Ubuntu)
         run: |
+          wget https://reviews.freebsd.org/file/data/par7w7vki3fd4sacec3z/PHID-FILE-nzha4xk6ncvf7v2ljtj2/D26959.diff
+          patch -p0 < D26959.diff
           wget -O /tmp/llvm.sh https://apt.llvm.org/llvm.sh
           chmod +x /tmp/llvm.sh
           sudo /tmp/llvm.sh 11
