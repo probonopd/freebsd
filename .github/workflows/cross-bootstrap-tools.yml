@@ -2,9 +2,9 @@ name: Cross-build CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ release/12.2.0 ]
   pull_request:
-    branches: [ master ]
+    branches: [ release/12.2.0 ]
 
 jobs:
   build:
