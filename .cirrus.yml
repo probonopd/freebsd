@@ -14,7 +14,10 @@ task:
   only_if: $CIRRUS_BRANCH != 'svn_head'
   timeout_in: 120m
   install_script:
-  - pkg install -y qemu42 uefi-edk2-qemu-x86_64 llvm11
+  - pkg install -y qemu42 uefi-edk2-qemu-x86_64 llvm11 wget
+  patch_script: # Patch D26959 # https://reviews.freebsd.org/D26959
+  - wget https://reviews.freebsd.org/file/data/par7w7vki3fd4sacec3z/PHID-FILE-nzha4xk6ncvf7v2ljtj2/D26959.diff
+  - patch -p0 < D26959.diff    
   setup_user_script:
   - pw useradd user
   - mkdir -p /usr/obj/$(pwd -P)
